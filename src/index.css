@@ -1,21 +1,70 @@
+@import url("https://fonts.googleapis.com/css2?family=League+Spartan:wght@100..900&display=swap");
 @import "tailwindcss";
 
 :root {
-  --purple-500: #7C5DFA;
-  --purple-300: #9277FF;
-  --bg-color: #F8F8F8;
-  --text-color: #0C0E16;
+  --purple-500: #7c5dfa;
+  --purple-200: #9277ff;
+  --bg-color: #f8f8f8;
+  --text-color: #0c0e16;
+  --p-color: #888eb0;
+  --card-bg: #fff;
+  --header-bg: #373b53;
+  --grey-200: #dfe3fa;
+  --dropdown-border: #fff;
+  --form-bg: #fff;
+  --input-border: #dfe3fa;
+  --add-bg: #f1f4ff;
+  --add-txt: #7e88c3;
+  --discard-bg: #7e88c3;
+  --discard-txt: #7e88c3;
+  --saveDraft: #888eb0;
+  --saveDraftHover: #0c0e16;
+  --Grand-bg: #373b53;
+  --draft-bg: rgba(55, 59, 83, 0.2);
+  --draft-clr: rgba(55, 59, 83, 1);
 }
 
-.dark{
+.dark {
   --bg-color: #141625;
   --text-color: #fff;
+  --p-color: #dfe3fa;
+  --card-bg: #1e2139;
+  --header-bg: #1e2139;
+  --grey-200: #1e2139;
+  --dropdown-border: #252945;
+  --form-bg: #141625;
+  --input-border: #252945;
+  --add-bg: #252945;
+  --add-txt: #888eb0;
+  --discard-bg: #dfe3fa;
+  --discard-txt: #dfe3fa;
+  --saveDraft: #dfe3fa;
+  --saveDraftHover: #1e2139;
+  --Grand-bg: #0c0e16;
+  --draft-bg: rgba(223, 227, 250, 0.2);
+  --draft-clr: rgba(223, 227, 250, 1);
 }
 
-*{
+* {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
-  transition: 0.5s ease;
+  font-family: "League Spartan", sans-serif;
+  transition: background 0.5s ease, color 0.5s ease;
 }
 
+button {
+  cursor: pointer;
+}
+
+h1 {
+  color: var(--text-color);
+  font-weight: 700;
+  cursor: default;
+}
+
+p {
+  color: var(--p-color);
+  font-weight: 500;
+  cursor: default;
+}
