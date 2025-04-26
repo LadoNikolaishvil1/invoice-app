@@ -107,7 +107,7 @@ header {
 
 section {
   width: 100%;
-  padding: 0 24px;
+  padding: 0 10px 0 24px;
   margin-top: 32px;
   display: flex;
   flex-direction: column;
@@ -121,6 +121,7 @@ section {
   align-items: center;
   justify-content: space-between;
   height: 44px;
+  padding: 0 20px 0 0;
 }
 
 .title {
@@ -295,9 +296,27 @@ section {
 .card-box {
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  overflow-y: scroll;
   max-height: 90vh;
   gap: 20px;
+  padding-right: 12px;
+}
+
+.card-box::-webkit-scrollbar {
+  width: 8px;
+}
+
+.card-box::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.card-box::-webkit-scrollbar-thumb {
+  background: var(--input-border);
+  transition: 0.5s ease;
+  opacity: 1;
+  border: 2px solid transparent;
+  background-clip: content-box;
+  border-radius: 20px;
 }
 
 .callout-box {
@@ -329,20 +348,21 @@ section {
 
 form {
   width: 100%;
-  height: 100vh;
+  height: calc(100vh - 72px);
   background: var(--form-bg);
   position: absolute;
+  bottom: 0;
   z-index: 998;
-  padding: 77px 5px 0 0;
-  right: 100%;
-  transition: right 0.5s ease, background 0.5s ease;
+  padding: 0 5px 0 0;
+  transform: translateX(-100%);
+  transition: transform 0.5s ease, background 0.5s ease;
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
 .form-active {
-  right: 0;
+  transform: translateX(0);
 }
 
 .InvoiceForm {
@@ -388,7 +408,7 @@ form {
   rotate: 180deg;
 }
 
-.Title {
+.form-title {
   font-size: 27px;
 }
 
@@ -439,7 +459,21 @@ form {
 .duble-Input-box {
   width: 100%;
   display: flex;
-  gap: 23px;
+  gap: 24px;
+}
+
+.triple-Input-box {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.special-double-input-box {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .p-calendar-w-btn {
@@ -552,7 +586,7 @@ form {
   gap: 16px;
 }
 
-.tripple-input-box {
+.item-tripple-input-box {
   display: flex;
   gap: 16px;
   align-items: center;
@@ -569,7 +603,7 @@ form {
 
 footer {
   position: relative;
-  width: 100%;
+  width: calc(100% + 5px);
   height: 91px;
   background: var(--card-bg);
   bottom: 0;
@@ -578,7 +612,7 @@ footer {
   display: flex;
   justify-content: center;
   gap: 7px;
-  box-shadow: 0px -30px 30px 0px rgba(0, 0, 0, 0.4);
+  box-shadow: 0px -30px 30px -8px rgba(0, 0, 0, 0.4);
 }
 
 footer button {
@@ -613,7 +647,7 @@ footer button {
   flex-direction: column;
   transition: 0.5s ease;
   position: relative;
-  min-height: 153px;
+  min-height: 72px;
 }
 
 .card-active {
@@ -621,10 +655,10 @@ footer button {
   padding: 10px;
   border-radius: 8px;
   background: var(--card-bg);
-  min-height: 967px;
+  min-height: 1085px;
 }
 
-.portion-box{
+.portion-box {
   width: 100%;
   min-height: 72px;
   height: auto;
@@ -638,14 +672,13 @@ footer button {
   padding: 24px;
 }
 
-.card-active .portion-box{
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.07);
+.card-active .portion-box {
+  box-shadow: var(--box-shadow);
 }
 
 .portion {
   width: 100%;
   height: 100%;
-
   border-radius: 8px;
   display: flex;
   flex-direction: column;
@@ -654,7 +687,7 @@ footer button {
   transition: 0.5s ease;
 }
 
-.card-active .portion{
+.card-active .portion {
   opacity: 0;
 }
 
@@ -707,7 +740,7 @@ footer button {
   bottom: 7px;
 }
 
-.portion-2{
+.portion-2 {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -720,18 +753,21 @@ footer button {
   transition: 0.5s ease;
 }
 
-.card-active .portion-2-active{
+.portion-2 .CardBtn-box {
+  display: none;
+}
+
+.card-active .portion-2-active {
   opacity: 1;
 }
 
-
 .portion-2 .draft,
 .portion-2 .pending,
-.portion-2 .paid 
-{
+.portion-2 .paid {
   position: relative;
   bottom: auto;
   right: auto;
+  transition: 0.5s ease;
 }
 
 .pending {
@@ -739,9 +775,14 @@ footer button {
   color: rgba(255, 143, 0, 1);
 }
 
-.draft{
+.draft {
   background: var(--draft-bg);
   color: var(--draft-clr);
+}
+
+.paid {
+  background: rgba(51, 214, 159, 0.2);
+  color: rgba(51, 214, 159, 1);
 }
 
 .card .full {
@@ -757,6 +798,7 @@ footer button {
   overflow: hidden;
   transition: 0.5s ease;
   pointer-events: none;
+  position: relative;
 }
 
 .card-active .info-active {
@@ -764,7 +806,7 @@ footer button {
   opacity: 1;
   max-height: 1200px;
   pointer-events: all;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.07);
+  box-shadow: var(--box-shadow);
 }
 
 .double-info-box {
@@ -811,10 +853,36 @@ footer button {
   overflow-y: auto;
 }
 
+.item-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.item-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.item-container::-webkit-scrollbar-thumb {
+  background: var(--input-border);
+  transition: 0.5s ease;
+  opacity: 1;
+  border: 2px solid transparent;
+  background-clip: content-box;
+  border-radius: 20px;
+}
+
 .item {
+  width: 100%;
+}
+
+.Cut-item-box {
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.Full-item-box {
+  display: none;
 }
 
 .Item-total {
@@ -833,4 +901,235 @@ footer button {
 
 .Item-total p {
   color: #fff;
+}
+
+.full .CardBtn-box {
+  position: relative;
+  bottom: -24px;
+  left: -24px;
+  width: calc(100% + 48px);
+  height: 91px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--card-bg);
+  gap: 10px;
+  box-shadow: 0px -15px 30px 0px rgba(0, 0, 0, 0.4);
+  border-radius: 0 0 8px 0;
+}
+
+.CardBtn-box button {
+  padding: 12px 17px;
+  border-radius: 24px;
+  font-weight: 700;
+}
+
+.edit {
+  background: var(--input-border);
+  color: var(--discard-txt);
+}
+
+.delete {
+  background: #ec5757;
+  color: #fff;
+}
+
+.Save-draft:hover {
+  background: var(--saveDraftHover);
+}
+
+.mark-paid {
+  background: var(--purple-500);
+  color: #fff;
+}
+
+.popUp {
+  width: 100%;
+  height: 100vh;
+  position: fixed;
+  display: grid;
+  place-content: center;
+  padding: 24px;
+  z-index: 1000;
+}
+
+.popUp .background {
+  position: absolute;
+  width: 100%;
+  height: 100vh;
+  background: #000;
+  opacity: 0.4;
+}
+
+.popUp-box {
+  position: relative;
+  padding: 24px;
+  background: var(--card-bg);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.popUp-box h1 {
+  font-size: 24px;
+}
+
+.PopUpBtn-box {
+  display: flex;
+  gap: 8px;
+  margin-top: 5px;
+  align-self: end;
+}
+
+.PopUpBtn-box button {
+  padding: 12px 17px;
+  border-radius: 24px;
+  font-weight: 700;
+}
+
+@media screen and (min-width: 601px) {
+  .double-info-box {
+    flex-direction: row;
+    gap: 117px;
+    margin-bottom: 30px;
+  }
+  .triple-info-box .double-info-box {
+    flex-direction: column;
+    margin-bottom: 0;
+  }
+  .triple-info-box {
+    gap: 117px;
+  }
+  .senderAddress-box {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+  }
+  .idBox {
+    margin-bottom: 40px;
+  }
+  .CardName,
+  .draft,
+  .pending,
+  .paid {
+    position: relative;
+    top: auto;
+    right: auto;
+  }
+  .portion {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .portion .cardId {
+    margin-bottom: 0;
+  }
+  .CardName {
+    margin: 0 60px 0 20px;
+  }
+  .draft,
+  .pending,
+  .paid {
+    margin-left: 20px;
+  }
+  .card-active {
+    min-height: 885px;
+  }
+
+  .Cut-item-box {
+    display: none;
+  }
+  .item-box-title {
+    width: 100%;
+    padding: 25px 25px 0 25px;
+    max-height: 72px;
+    align-items: center;
+  }
+  .Full-item-box {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+  }
+
+  .Full-item-box :nth-child(1) {
+    width: 50%;
+    font-weight: 700;
+    font-size: 16px;
+  }
+  .Full-item-box :nth-child(2) {
+    width: 17.5%;
+    text-align: center;
+    font-weight: 700;
+    font-size: 16px;
+  }
+  .Full-item-box :nth-child(3) {
+    width: 17.5%;
+    text-align: end;
+    font-weight: 700;
+    font-size: 16px;
+  }
+  .Full-item-box :nth-child(4) {
+    width: 28%;
+    text-align: end;
+    font-weight: 700;
+    font-size: 16px;
+  }
+  .item-container {
+    padding: 25px 12px 25px 25px;
+    height: 120px;
+  }
+  .portion-2 {
+    justify-content: start;
+    gap: 20px;
+  }
+  .portion-2 .CardBtn-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    justify-self: end;
+    position: absolute;
+    right: 0;
+  }
+  form {
+    width: 80%;
+    border-radius: 20px;
+    padding-top: 10px;
+  }
+  footer{
+    border-radius: 0 0 20px 0;
+  }
+  .InvoiceForm {
+    padding: 0 52px 0 52px;
+  }
+  .form-title{
+    margin-top: 30px;
+  }
+  .triple-Input-box,
+  .special-double-input-box,
+  .item-box {
+    flex-direction: row;
+  }
+  .triple-Input-box .duble-Input-box {
+    width: 66.7%;
+  }
+  .triple-Input-box .duble-Input-box .input-box {
+    width: 100%;
+  }
+  .triple-Input-box .input-box {
+    width: 33.3%;
+  }
+  .item-box .input-box {
+    width: 40%;
+  }
+  .item-tripple-input-box {
+    width: 60%;
+  }
+  .Items-box {
+    gap: 20px;
+  }
+  .goback {
+    display: none;
+  }
 }

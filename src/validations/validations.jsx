@@ -9,10 +9,19 @@ const addressSchema = Yup.object({
 
 const itemSchema = Yup.object({
   name: Yup.string().required("Item name is required"),
-  quantity: Yup.number().integer("integer").required("required").min(1, "Min 1"),
+  quantity: Yup.number()
+    .integer("integer")
+    .required("required")
+    .min(1, "Min 1"),
   price: Yup.number()
     .required("Price is required")
-    .min(0.01, "Min price is 0.01"),
+    .min(0.01, "Min price is 0.01")
+    .test(
+      "max-2-decimals",
+      "max 2 decimals",
+      (value) =>
+        value === undefined || /^\d+(\.\d{1,2})?$/.test(value.toString())
+    ),
   total: Yup.number().required(),
 });
 

@@ -1,7 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useFormik } from "formik";
 import "./App.css";
-import validationSchema from "./validations/validations.jsx";
 import Form from "./components/InvoiceForm.jsx";
 import InvoiceCard from "./components/InvoiceCard.jsx";
 
@@ -21,7 +19,11 @@ function App() {
     pending: false,
     paid: false,
   });
+  const [resetForm, setResetForm] = useState(false);
   const [invoices, setInvoices] = useState([]);
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [ShowPopUp, SetShowPopUp] = useState(false);
+  const [deletingInv, setDeletingInv] = useState(null);
 
   const ChangeTheeme = () => {
     document.documentElement.classList.toggle("dark");
@@ -53,8 +55,11 @@ function App() {
     }
   };
 
-  const popUpForm = () => {
+  const popUpForm = (bool) => {
     formRef.current.classList.toggle("form-active");
+    if (!bool) return;
+    setSelectedInvoice(null);
+    setResetForm(true);
   };
 
   const handleItemClick = (key, functionVar) => {
@@ -69,6 +74,31 @@ function App() {
   const handleDropdown = () => {
     dropdownRef.current.classList.toggle("filter-dropdown-active");
     imgRef.current.classList.toggle("active-img");
+  };
+
+  const handleEdit = (invoiceId) => {
+    const invoiceToEdit = invoices.find((inv) => inv.id === invoiceId);
+    setSelectedInvoice(invoiceToEdit);
+    popUpForm();
+  };
+
+  const handleDelete = (invoiceId) => {
+    const invoiceToDelete = invoices.find((inv) => inv.id === invoiceId);
+    setDeletingInv(invoiceToDelete);
+    SetShowPopUp(true);
+  };
+
+  const confirmDelete = () => {
+    setInvoices((prevInvoices) =>
+      prevInvoices.filter((inv) => inv.id !== deletingInv.id)
+    );
+    SetShowPopUp(false);
+    setDeletingInv(null);
+  };
+
+  const cancelDelete = () => {
+    SetShowPopUp(false);
+    setDeletingInv(null);
   };
 
   return (
@@ -163,7 +193,7 @@ function App() {
                 </ul>
               </div>
             </div>
-            <button className="CreateInvoice" onClick={popUpForm}>
+            <button className="CreateInvoice" onClick={() => popUpForm("yes")}>
               <div className="circle">
                 <img src="plus.png" alt="" />
               </div>
@@ -173,7 +203,14 @@ function App() {
         </div>
         <div className="card-box">
           {invoices.length > 0 ? (
-            invoices.map((data, index) => <InvoiceCard key={index} data={data} />)
+            invoices.map((data) => (
+              <InvoiceCard
+                key={data.id}
+                Data={data}
+                onEdit={() => handleEdit(data.id)}
+                onDelete={() => handleDelete(data.id)}
+              />
+            ))
           ) : (
             <div className="callout-box">
               <img src="callout.png" alt="" />
@@ -191,10 +228,33 @@ function App() {
       {/* section end */}
       <Form
         formRef={formRef}
-        invoices={invoices}
+        invoiceData={selectedInvoice}
+        setSelectedInvoice={setSelectedInvoice}
         setInvoices={setInvoices}
         popUpForm={popUpForm}
+        resetValues={resetForm}
+        setResetValues={setResetForm}
       />
+      {ShowPopUp && (
+        <div className="popUp">
+          <div className="background"></div>
+          <div className="popUp-box">
+            <h1>Confirm Deletion</h1>
+            <p>
+              Are you sure you want to delete invoice #{deletingInv?.id}? This
+              action cannot be undone.
+            </p>
+            <div className="PopUpBtn-box">
+              <button className="Discard" type="button" onClick={cancelDelete}>
+                Cancel
+              </button>
+              <button className="delete" type="submit" onClick={confirmDelete}>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

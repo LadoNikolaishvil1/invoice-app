@@ -1,17 +1,30 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 
-const InvoiceCard = (data) => {
+const InvoiceCard = ({ Data, onEdit, onDelete }) => {
   const cardRef = useRef(null);
   const infoRef = useRef(null);
   const portionRef = useRef(null);
   const [isAnimating, setIsAnimating] = useState(false);
-  const invData = data.data;
+  const [invData, setInvData] = useState(Data);
+
+  useEffect(() => {
+    setInvData(Data);
+  }, [Data]);
+
   const formatDate = (date) =>
     new Date(date).toLocaleDateString("en-GB", {
       day: "2-digit",
       month: "short",
       year: "numeric",
     });
+  const MarkAsPaid = () => {
+    if (invData.status != "Paid") {
+      ActivateCard();
+      setTimeout(() => {
+        setInvData({ ...invData, status: "Paid" });
+      }, 2000);
+    }
+  };
 
   const ActivateCard = () => {
     if (isAnimating) return;
@@ -20,14 +33,12 @@ const InvoiceCard = (data) => {
     if (cardRef.current.classList.contains("card-active")) {
       infoRef.current.classList.toggle("info-active");
       portionRef.current.classList.toggle("portion-2-active");
-      console.log("toggled");
       setTimeout(() => {
         cardRef.current.classList.toggle("card-active");
         setIsAnimating(false);
       }, 800);
     } else {
       cardRef.current.classList.toggle("card-active");
-      console.log("toggled");
       setTimeout(() => {
         infoRef.current.classList.toggle("info-active");
         portionRef.current.classList.toggle("portion-2-active");
@@ -77,6 +88,19 @@ const InvoiceCard = (data) => {
           >
             <span>.</span> {invData.status}
           </div>
+          <div className="CardBtn-box">
+            <button className="edit" type="button" onClick={onEdit}>
+              Edit
+            </button>
+
+            <button className="delete" type="submit" onClick={onDelete}>
+              Delete
+            </button>
+
+            <button className="mark-paid" type="submit" onClick={MarkAsPaid}>
+              Mark as Paid
+            </button>
+          </div>
         </div>
       </div>
       <div className="full" ref={infoRef}>
@@ -122,23 +146,52 @@ const InvoiceCard = (data) => {
           </div>
         </div>
         <div className="AllItems-box">
+          <div className="Full-item-box item-box-title">
+            <p>Item Name</p>
+            <p>QTY.</p>
+            <p>Price</p>
+            <p>Total</p>
+          </div>
           <div className="item-container">
             {invData.items.map((item, index) => (
               <div className="item" key={index}>
-                <div className="item-text">
-                  <h1>{item.name}</h1>
-                  <p>
-                    {item.quantity} x £ {item.price}
-                  </p>
+                <div className="Cut-item-box">
+                  <div className="item-text">
+                    <h1>{item.name}</h1>
+                    <p>
+                      {item.quantity} x £ {item.price}
+                    </p>
+                  </div>
+                  <h1>£ {item.total}</h1>
                 </div>
-                <h1>£ {item.total}</h1>
+
+                <div className="Full-item-box">
+                  <h1>{item.name}</h1>
+                  <p>{item.quantity}</p>
+                  <p>£ {item.price}</p>
+                  <h1>£ {item.total}</h1>
+                </div>
               </div>
             ))}
           </div>
+
           <div className="Item-total">
             <p>Grand Total</p>
             <h1>£ {invData.total}</h1>
           </div>
+        </div>
+        <div className="CardBtn-box">
+          <button className="edit" type="button" onClick={onEdit}>
+            Edit
+          </button>
+
+          <button className="delete" type="submit" onClick={onDelete}>
+            Delete
+          </button>
+
+          <button className="mark-paid" type="submit" onClick={MarkAsPaid}>
+            Mark as Paid
+          </button>
         </div>
       </div>
     </div>

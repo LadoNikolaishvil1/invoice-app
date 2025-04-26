@@ -1,11 +1,19 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useFormik } from "formik";
 import { Calendar } from "primereact/calendar";
 import { Dropdown } from "primereact/dropdown";
 import Item from "./item.jsx";
 import validationSchema from "../validations/validations";
 
-function Form({ formRef, invoices, setInvoices, popUpForm }) {
+function Form({
+  formRef,
+  invoiceData,
+  setSelectedInvoice,
+  setInvoices,
+  popUpForm,
+  resetValues,
+  setResetValues,
+}) {
   const [date, setDate] = useState(null);
   const Terms = [
     { name: "Next 1 Day" },
@@ -31,6 +39,36 @@ function Form({ formRef, invoices, setInvoices, popUpForm }) {
     }
   }, [itemErrorMsg]);
 
+  const initialValues = useMemo(
+    () => ({
+      id: invoiceData?.id || "",
+      createdAt: invoiceData?.createdAt || "",
+      paymentDue: invoiceData?.paymentDue || "",
+      description: invoiceData?.description || "",
+      clientName: invoiceData?.clientName || "",
+      clientEmail: invoiceData?.clientEmail || "",
+      paymentTerms: invoiceData?.paymentTerms || "",
+      senderAddress: {
+        street: invoiceData?.senderAddress?.street || "",
+        city: invoiceData?.senderAddress?.city || "",
+        postCode: invoiceData?.senderAddress?.postCode || "",
+        country: invoiceData?.senderAddress?.country || "",
+      },
+      clientAddress: {
+        street: invoiceData?.clientAddress?.street || "",
+        city: invoiceData?.clientAddress?.city || "",
+        postCode: invoiceData?.clientAddress?.postCode || "",
+        country: invoiceData?.clientAddress?.country || "",
+      },
+      items: invoiceData?.items || [
+        { name: "", quantity: "", price: "", total: "0.00" },
+      ],
+      total: invoiceData?.total || 0,
+      status: invoiceData?.status || "Draft",
+    }),
+    [invoiceData]
+  );
+
   const {
     values,
     handleBlur,
@@ -41,40 +79,57 @@ function Form({ formRef, invoices, setInvoices, popUpForm }) {
     touched,
     setFieldValue,
   } = useFormik({
-    initialValues: {
-      createdAt: "",
-      paymentDue: "",
-      description: "",
-      paymentTerms: "",
-      clientName: "",
-      clientEmail: "",
-      status: "",
-      senderAddress: {
-        street: "",
-        city: "",
-        postCode: "",
-        country: "",
-      },
-      clientAddress: {
-        street: "",
-        city: "",
-        postCode: "",
-        country: "",
-      },
-      items: [
-        {
-          name: "",
-          quantity: "",
-          price: "",
-          total: "0.00",
-        },
-      ],
-      total: "",
-    },
+    initialValues,
     validationSchema,
+    // onSubmit: (formValues) => {
+    //   const grandTotal = values.items.reduce(
+    //     (acc, curr) => acc + (parseFloat(curr.total) || 0),
+    //     0
+    //   );
+
+    //   const createdAtDate = new Date(formValues.createdAt);
+
+    //   const termMatch = formValues.paymentTerms.match(/\d+/);
+    //   const daysToAdd = termMatch ? parseInt(termMatch[0]) : 0;
+
+    //   const paymentDueDate = new Date(createdAtDate);
+    //   paymentDueDate.setDate(createdAtDate.getDate() + daysToAdd);
+
+    //   if (!invoiceData) {
+    //     const completeForm = {
+    //       ...formValues,
+    //       id: Math.random().toString(36).substr(2, 6).toUpperCase(),
+    //       paymentDue: paymentDueDate,
+    //       total: grandTotal.toFixed(2),
+    //       status: submitType === "Draft" ? "Draft" : "Pending",
+    //     };
+    //     setInvoices((prev) => [...prev, completeForm]);
+    //   } else {
+    //     const completeForm = {
+    //       ...formValues,
+    //       paymentDue: paymentDueDate,
+    //       total: grandTotal.toFixed(2),
+    //       status: submitType === "Draft" ? "Draft" : "Pending",
+    //     };
+    //     setSelectedInvoice(completeForm);
+
+    //     setInvoices((prev) =>
+    //       prev.map((inv) => (inv.id == completeForm.id ? completeForm : inv))
+    //     );
+    //   }
+
+    //   onResetForm();
+    // },
     onSubmit: (formValues) => {
-      const grandTotal = values.items.reduce(
-        (acc, curr) => acc + (parseFloat(curr.total) || 0),
+      // Format item prices to 2 decimal places
+      const formattedItems = formValues.items.map((item) => ({
+        ...item,
+        price: parseFloat(item.price).toFixed(2),
+        total: (parseFloat(item.quantity) * parseFloat(item.price)).toFixed(2),
+      }));
+
+      const grandTotal = formattedItems.reduce(
+        (acc, curr) => acc + parseFloat(curr.total),
         0
       );
 
@@ -87,57 +142,66 @@ function Form({ formRef, invoices, setInvoices, popUpForm }) {
       paymentDueDate.setDate(createdAtDate.getDate() + daysToAdd);
 
       const completeForm = {
-        id: Math.random().toString(36).substr(2, 6).toUpperCase(),
         ...formValues,
+        items: formattedItems,
         paymentDue: paymentDueDate,
         total: grandTotal.toFixed(2),
         status: submitType === "Draft" ? "Draft" : "Pending",
       };
 
-      setInvoices((prev) => [...prev, completeForm]);
+      if (!invoiceData) {
+        completeForm.id = Math.random().toString(36).substr(2, 6).toUpperCase();
+        setInvoices((prev) => [...prev, completeForm]);
+      } else {
+        completeForm.id = invoiceData.id;
+        setSelectedInvoice(completeForm);
+        setInvoices((prev) =>
+          prev.map((inv) => (inv.id == completeForm.id ? completeForm : inv))
+        );
+      }
+
       onResetForm();
     },
+
+    enableReinitialize: true,
   });
 
-  const onResetForm = () => {
+  useEffect(() => {
+    if (invoiceData) {
+      if (invoiceData.createdAt) {
+        const parsedDate = new Date(invoiceData.createdAt);
+        setDate(parsedDate);
+      }
+
+      if (invoiceData.paymentTerms) {
+        const matchedTerm = Terms.find(
+          (term) => term.name === invoiceData.paymentTerms
+        );
+        setSelectedTerm(matchedTerm || null);
+      }
+    }
+  }, [invoiceData]);
+
+  useEffect(() => {
+    if (!resetValues) return;
+    if (date !== null) setDate(null);
+    if (selectedTerm !== null) setSelectedTerm(null);
+    setSubmitType("Pending");
+    setItemErrorMsg(null);
+    resetForm({ values: initialValues });
+    setResetValues(false);
+  }, [resetValues]);
+
+  const onResetForm = (string) => {
     popUpForm();
     setTimeout(() => {
-      setDate(null);
-      setSelectedTerm(null);
+      if (string) return resetForm({ values: invoiceData });
+      if (invoiceData) return;
+      if (date !== null) setDate(null);
+      if (selectedTerm !== null) setSelectedTerm(null);
       setSubmitType("Pending");
       setItemErrorMsg(null);
-      resetForm({
-        values: {
-          createdAt: "",
-          paymentDue: "",
-          description: "",
-          paymentTerms: "",
-          clientName: "",
-          clientEmail: "",
-          status: "",
-          senderAddress: {
-            street: "",
-            city: "",
-            postCode: "",
-            country: "",
-          },
-          clientAddress: {
-            street: "",
-            city: "",
-            postCode: "",
-            country: "",
-          },
-          items: [
-            {
-              name: "",
-              quantity: "",
-              price: "",
-              total: "0.00",
-            },
-          ],
-          total: "",
-        },
-      });
+      resetForm({ values: initialValues });
     }, 300);
   };
 
@@ -182,7 +246,9 @@ function Form({ formRef, invoices, setInvoices, popUpForm }) {
           <img src="dropIcon.png" alt="" />
           <h1>Go back</h1>
         </button>
-        <h1 className="Title">New Invoice</h1>
+        <h1 className="form-title">
+          {!invoiceData ? "New Invoice" : `Edit #${invoiceData.id}`}
+        </h1>
 
         {/* Bill From Section */}
         <div className="form-box">
@@ -202,53 +268,56 @@ function Form({ formRef, invoices, setInvoices, popUpForm }) {
               onBlur={handleBlur}
             />
           </div>
-          <div className="duble-Input-box">
+          <div className="triple-Input-box">
+            <div className="duble-Input-box">
+              <div className="input-box">
+                <p className="error">
+                  {touched?.senderAddress?.city && errors?.senderAddress?.city
+                    ? errors.senderAddress.city
+                    : ""}
+                </p>
+                <p>City</p>
+                <input
+                  type="text"
+                  name="senderAddress.city"
+                  value={values.senderAddress.city}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                />
+              </div>
+              <div className="input-box">
+                <p className="error">
+                  {touched?.senderAddress?.postCode &&
+                  errors?.senderAddress?.postCode
+                    ? errors.senderAddress.postCode
+                    : ""}
+                </p>
+                <p>Post Code</p>
+                <input
+                  type="text"
+                  name="senderAddress.postCode"
+                  value={values.senderAddress.postCode}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                />
+              </div>
+            </div>
             <div className="input-box">
               <p className="error">
-                {touched?.senderAddress?.city && errors?.senderAddress?.city
-                  ? errors.senderAddress.city
+                {touched?.senderAddress?.country &&
+                errors?.senderAddress?.country
+                  ? errors.senderAddress.country
                   : ""}
               </p>
-              <p>City</p>
+              <p>Country</p>
               <input
                 type="text"
-                name="senderAddress.city"
-                value={values.senderAddress.city}
+                name="senderAddress.country"
+                value={values.senderAddress.country}
                 onChange={handleChange}
                 onBlur={handleBlur}
               />
             </div>
-            <div className="input-box">
-              <p className="error">
-                {touched?.senderAddress?.postCode &&
-                errors?.senderAddress?.postCode
-                  ? errors.senderAddress.postCode
-                  : ""}
-              </p>
-              <p>Post Code</p>
-              <input
-                type="text"
-                name="senderAddress.postCode"
-                value={values.senderAddress.postCode}
-                onChange={handleChange}
-                onBlur={handleBlur}
-              />
-            </div>
-          </div>
-          <div className="input-box">
-            <p className="error">
-              {touched?.senderAddress?.country && errors?.senderAddress?.country
-                ? errors.senderAddress.country
-                : ""}
-            </p>
-            <p>Country</p>
-            <input
-              type="text"
-              name="senderAddress.country"
-              value={values.senderAddress.country}
-              onChange={handleChange}
-              onBlur={handleBlur}
-            />
           </div>
         </div>
 
@@ -300,108 +369,113 @@ function Form({ formRef, invoices, setInvoices, popUpForm }) {
               onBlur={handleBlur}
             />
           </div>
-          <div className="duble-Input-box">
+          <div className="triple-Input-box">
+            <div className="duble-Input-box">
+              <div className="input-box">
+                <p className="error">
+                  {touched?.clientAddress?.city && errors?.clientAddress?.city
+                    ? errors.clientAddress.city
+                    : ""}
+                </p>
+                <p>City</p>
+                <input
+                  type="text"
+                  name="clientAddress.city"
+                  value={values.clientAddress.city}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                />
+              </div>
+              <div className="input-box">
+                <p className="error">
+                  {touched?.clientAddress?.postCode &&
+                  errors?.clientAddress?.postCode
+                    ? errors.clientAddress.postCode
+                    : ""}
+                </p>
+                <p>Post Code</p>
+                <input
+                  type="text"
+                  name="clientAddress.postCode"
+                  value={values.clientAddress.postCode}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                />
+              </div>
+            </div>
             <div className="input-box">
               <p className="error">
-                {touched?.clientAddress?.city && errors?.clientAddress?.city
-                  ? errors.clientAddress.city
+                {touched?.clientAddress?.country &&
+                errors?.clientAddress?.country
+                  ? errors.clientAddress.country
                   : ""}
               </p>
-              <p>City</p>
+              <p>Country</p>
               <input
                 type="text"
-                name="clientAddress.city"
-                value={values.clientAddress.city}
+                name="clientAddress.country"
+                value={values.clientAddress.country}
                 onChange={handleChange}
                 onBlur={handleBlur}
               />
             </div>
+          </div>
+          <div className="special-double-input-box">
             <div className="input-box">
               <p className="error">
-                {touched?.clientAddress?.postCode &&
-                errors?.clientAddress?.postCode
-                  ? errors.clientAddress.postCode
+                {touched?.createdAt && errors?.createdAt
+                  ? errors.createdAt
                   : ""}
               </p>
-              <p>Post Code</p>
-              <input
-                type="text"
-                name="clientAddress.postCode"
-                value={values.clientAddress.postCode}
-                onChange={handleChange}
-                onBlur={handleBlur}
+              <p>Set Date</p>
+              <Calendar
+                value={date}
+                onChange={(e) => {
+                  setDate(e.value);
+                  handleChange({
+                    target: { name: "createdAt", value: e.value },
+                  });
+                }}
+                onBlur={() =>
+                  handleBlur({
+                    target: { name: "createdAt" },
+                  })
+                }
+                dateFormat="dd MM yy"
+                appendTo={"self"}
+                showIcon
               />
             </div>
-          </div>
-          <div className="input-box">
-            <p className="error">
-              {touched?.clientAddress?.country && errors?.clientAddress?.country
-                ? errors.clientAddress.country
-                : ""}
-            </p>
-            <p>Country</p>
-            <input
-              type="text"
-              name="clientAddress.country"
-              value={values.clientAddress.country}
-              onChange={handleChange}
-              onBlur={handleBlur}
-            />
-          </div>
-
-          <div className="input-box">
-            <p className="error">
-              {touched?.createdAt && errors?.createdAt ? errors.createdAt : ""}
-            </p>
-            <p>Set Date</p>
-            <Calendar
-              value={date}
-              onChange={(e) => {
-                setDate(e.value);
-                handleChange({
-                  target: { name: "createdAt", value: e.value },
-                });
-              }}
-              onBlur={() =>
-                handleBlur({
-                  target: { name: "createdAt" },
-                })
-              }
-              dateFormat="dd MM yy"
-              appendTo={"self"}
-              showIcon
-            />
-          </div>
-
-          <div className="input-box">
-            <p className="error">
-              {touched?.paymentTerms && errors?.paymentTerms
-                ? errors.paymentTerms
-                : ""}
-            </p>
-            <p>Payment Terms</p>
-            <Dropdown
-              value={selectedTerm}
-              onChange={(e) => {
-                setSelectedTerm(e.value);
-                handleChange({
-                  target: {
-                    name: "paymentTerms",
-                    value: e.value.name,
-                  },
-                });
-              }}
-              onBlur={() =>
-                handleBlur({
-                  target: { name: "paymentTerms" },
-                })
-              }
-              options={Terms}
-              optionLabel="name"
-              appendTo={"self"}
-              placeholder="Select a term"
-              className="w-full md:w-14rem"
-            />
+            <div className="input-box">
+              <p className="error">
+                {touched?.paymentTerms && errors?.paymentTerms
+                  ? errors.paymentTerms
+                  : ""}
+              </p>
+              <p>Payment Terms</p>
+              <Dropdown
+                value={selectedTerm}
+                onChange={(e) => {
+                  setSelectedTerm(e.value);
+                  handleChange({
+                    target: {
+                      name: "paymentTerms",
+                      value: e.value.name,
+                    },
+                  });
+                }}
+                onBlur={() =>
+                  handleBlur({
+                    target: { name: "paymentTerms" },
+                  })
+                }
+                options={Terms}
+                optionLabel="name"
+                appendTo={"self"}
+                placeholder="Select a term"
+                className="w-full md:w-14rem"
+              />
+            </div>
           </div>
 
           <div className="input-box">
@@ -451,21 +525,23 @@ function Form({ formRef, invoices, setInvoices, popUpForm }) {
 
       <footer>
         <button className="Discard" type="button" onClick={onResetForm}>
-          Discard
+          {!invoiceData ? "Discard" : "Cancel"}
         </button>
 
-        <button
-          className="Save-draft"
-          type="submit"
-          onClick={() => setSubmitType("Draft")}
-        >
-          Save as Draft
-        </button>
+        {!invoiceData && (
+          <button
+            className="Save-draft"
+            type="submit"
+            onClick={() => setSubmitType("Draft")}
+          >
+            Save as Draft
+          </button>
+        )}
 
         <button
           className="Save-send"
           type="submit"
-          onClick={() => setSubmitType("Pending")}
+          onMouseDown={() => setSubmitType("Pending")}
         >
           Save & Send
         </button>
