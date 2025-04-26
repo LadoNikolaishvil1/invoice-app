@@ -26,7 +26,7 @@ const Item = ({
         </p>
       </div>
 
-      <div className="tripple-input-box">
+      <div className="item-tripple-input-box">
         <div className="input-box" style={{ width: "20%" }}>
           <p>Qty.</p>
           <input

@@ -22,6 +22,7 @@
   --Grand-bg: #373b53;
   --draft-bg: rgba(55, 59, 83, 0.2);
   --draft-clr: rgba(55, 59, 83, 1);
+  --box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .dark {
@@ -43,6 +44,7 @@
   --Grand-bg: #0c0e16;
   --draft-bg: rgba(223, 227, 250, 0.2);
   --draft-clr: rgba(223, 227, 250, 1);
+  --box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
 * {
