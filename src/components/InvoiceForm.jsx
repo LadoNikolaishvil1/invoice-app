@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useFormik } from "formik";
 import { Calendar } from "primereact/calendar";
 import { Dropdown } from "primereact/dropdown";
-import Item from "./item.jsx";
+import Item from "./Item.jsx";
 import validationSchema from "../validations/validations";
 
 function Form({
