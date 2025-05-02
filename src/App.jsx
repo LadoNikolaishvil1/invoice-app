@@ -8,11 +8,12 @@ function App() {
   const sunRef = useRef(null);
   const dropdownRef = useRef(null);
   const formRef = useRef(null);
+  const formBgRef = useRef(null);
   const imgRef = useRef(null);
   const [checkedItems, setCheckedItems] = useState({
-    draft: false,
-    pending: false,
-    paid: false,
+    draft: true,
+    pending: true,
+    paid: true,
   });
   const [HoveredItems, setHoveredItems] = useState({
     draft: false,
@@ -56,7 +57,22 @@ function App() {
   };
 
   const popUpForm = (bool) => {
-    formRef.current.classList.toggle("form-active");
+    if (!formBgRef.current.classList.contains("form-bg-active")) {
+      formBgRef.current.classList.toggle("form-bg-show");
+      formBgRef.current.classList.toggle("form-bg-active");
+      setTimeout(() => {
+        formRef.current.classList.toggle("form-active");
+      }, 300);
+    } else {
+      formRef.current.classList.toggle("form-active");
+      setTimeout(() => {
+        formBgRef.current.classList.toggle("form-bg-active");
+      }, 300);
+      setTimeout(() => {
+        formBgRef.current.classList.toggle("form-bg-show");
+      }, 800);
+    }
+
     if (!bool) return;
     setSelectedInvoice(null);
     setResetForm(true);
@@ -88,6 +104,14 @@ function App() {
     SetShowPopUp(true);
   };
 
+  const MarkAsPaid = (invoiceId) => {
+    setInvoices((prevInvoices) =>
+      prevInvoices.map((inv) =>
+        inv.id === invoiceId ? { ...inv, status: "paid" } : inv
+      )
+    );
+  };
+
   const confirmDelete = () => {
     setInvoices((prevInvoices) =>
       prevInvoices.filter((inv) => inv.id !== deletingInv.id)
@@ -103,6 +127,7 @@ function App() {
 
   return (
     <main>
+      <div ref={formBgRef} className="form-bg"></div>
       <header>
         <div className="icon">
           <div></div>
@@ -123,15 +148,18 @@ function App() {
           <div className="title">
             <h1>Invoices</h1>
             <p>
-              {invoices.length > 0
-                ? `${invoices.length} invoices`
+              {invoices.filter((inv) => checkedItems[inv.status]).length > 0
+                ? `${
+                    invoices.filter((inv) => checkedItems[inv.status]).length
+                  } invoices`
                 : "no invoices"}
             </p>
           </div>
           <div className="filters">
             <div className="container">
               <button className="FilterBtn" onClick={handleDropdown}>
-                <h1>Filter</h1>
+                <h1 className="phone">Filter</h1>
+                <h1 className="responsive">Filter by Status</h1>
                 <img ref={imgRef} src="dropIcon.png" alt="" />
               </button>
               <div ref={dropdownRef} className="filter-dropdown">
@@ -197,20 +225,24 @@ function App() {
               <div className="circle">
                 <img src="plus.png" alt="" />
               </div>
-              <h1>New</h1>
+              <h1 className="phone">New</h1>
+              <h1 className="responsive">New Invoice</h1>
             </button>
           </div>
         </div>
         <div className="card-box">
-          {invoices.length > 0 ? (
-            invoices.map((data) => (
-              <InvoiceCard
-                key={data.id}
-                Data={data}
-                onEdit={() => handleEdit(data.id)}
-                onDelete={() => handleDelete(data.id)}
-              />
-            ))
+          {invoices.filter((inv) => checkedItems[inv.status]).length > 0 ? (
+            invoices
+              .filter((inv) => checkedItems[inv.status])
+              .map((data) => (
+                <InvoiceCard
+                  key={data.id}
+                  Data={data}
+                  onEdit={() => handleEdit(data.id)}
+                  onDelete={() => handleDelete(data.id)}
+                  SetInvPaid={() => MarkAsPaid(data.id)}
+                />
+              ))
           ) : (
             <div className="callout-box">
               <img src="callout.png" alt="" />

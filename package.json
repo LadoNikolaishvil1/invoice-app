@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.4",
+    "@uidotdev/usehooks": "^2.4.1",
     "formik": "^2.4.6",
     "primereact": "^10.9.4",
     "react": "^19.0.0",

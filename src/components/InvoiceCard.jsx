@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 
-const InvoiceCard = ({ Data, onEdit, onDelete }) => {
+const InvoiceCard = ({ Data, onEdit, onDelete, SetInvPaid }) => {
   const cardRef = useRef(null);
   const infoRef = useRef(null);
   const portionRef = useRef(null);
@@ -18,10 +18,11 @@ const InvoiceCard = ({ Data, onEdit, onDelete }) => {
       year: "numeric",
     });
   const MarkAsPaid = () => {
-    if (invData.status != "Paid") {
+    if (invData.status != "paid") {
       ActivateCard();
       setTimeout(() => {
-        setInvData({ ...invData, status: "Paid" });
+        SetInvPaid()
+        setInvData({ ...invData, status: "paid" });
       }, 2000);
     }
   };
@@ -48,8 +49,24 @@ const InvoiceCard = ({ Data, onEdit, onDelete }) => {
   };
   return (
     <div className="card" ref={cardRef}>
-      <div className="portion-box" onClick={ActivateCard}>
-        <div className="portion">
+      <div
+        className="portion-box"
+        onClick={() => {
+          const isTablet = window.innerWidth >= 601;
+          if (!isTablet) {
+            ActivateCard();
+          }
+        }}
+      >
+        <div
+          className="portion"
+          onClick={() => {
+            const isTablet = window.innerWidth >= 601;
+            if (isTablet) {
+              ActivateCard();
+            }
+          }}
+        >
           <h1 className="cardId">
             <p>#</p>
             {invData.id}
@@ -59,11 +76,11 @@ const InvoiceCard = ({ Data, onEdit, onDelete }) => {
           <h1 className="price">£ {invData.total}</h1>
           <div
             className={
-              invData.status == "Draft"
+              invData.status == "draft"
                 ? "draft"
-                : invData.status == "Pending"
+                : invData.status == "pending"
                 ? "pending"
-                : invData.status == "Paid"
+                : invData.status == "paid"
                 ? "paid"
                 : ""
             }
@@ -77,17 +94,21 @@ const InvoiceCard = ({ Data, onEdit, onDelete }) => {
           <p>Status</p>
           <div
             className={
-              invData.status == "Draft"
+              invData.status == "draft"
                 ? "draft"
-                : invData.status == "Pending"
+                : invData.status == "pending"
                 ? "pending"
-                : invData.status == "Paid"
+                : invData.status == "paid"
                 ? "paid"
                 : ""
             }
           >
             <span>.</span> {invData.status}
           </div>
+          <button type="button" className="goback-Card" onClick={ActivateCard}>
+            <img src="dropIcon.png" alt="" />
+            <h1>Go back</h1>
+          </button>
           <div className="CardBtn-box">
             <button className="edit" type="button" onClick={onEdit}>
               Edit
@@ -104,18 +125,20 @@ const InvoiceCard = ({ Data, onEdit, onDelete }) => {
         </div>
       </div>
       <div className="full" ref={infoRef}>
-        <div className="idBox">
-          <h1 className="cardId">
-            <p>#</p>
-            {invData.id}
-          </h1>
-          <p>{invData.description}</p>
-        </div>
-        <div className="senderAddress-box">
-          <p>{invData.senderAddress.street}</p>
-          <p>{invData.senderAddress.city}</p>
-          <p>{invData.senderAddress.postCode}</p>
-          <p>{invData.senderAddress.country}</p>
+        <div className="id-double-info-box">
+          <div className="idBox">
+            <h1 className="cardId">
+              <p>#</p>
+              {invData.id}
+            </h1>
+            <p>{invData.description}</p>
+          </div>
+          <div className="senderAddress-box">
+            <p>{invData.senderAddress.street}</p>
+            <p>{invData.senderAddress.city}</p>
+            <p>{invData.senderAddress.postCode}</p>
+            <p>{invData.senderAddress.country}</p>
+          </div>
         </div>
         <div className="double-info-box">
           <div className="triple-info-box">

@@ -22,7 +22,7 @@ function Form({
     { name: "Next 30 Days" },
   ];
   const [selectedTerm, setSelectedTerm] = useState(null);
-  const [submitType, setSubmitType] = useState("Pending");
+  const [submitType, setSubmitType] = useState("pending");
   const [itemErrorMsg, setItemErrorMsg] = useState(null);
   const itemErrorTimeoutRef = useRef(null);
 
@@ -81,47 +81,7 @@ function Form({
   } = useFormik({
     initialValues,
     validationSchema,
-    // onSubmit: (formValues) => {
-    //   const grandTotal = values.items.reduce(
-    //     (acc, curr) => acc + (parseFloat(curr.total) || 0),
-    //     0
-    //   );
-
-    //   const createdAtDate = new Date(formValues.createdAt);
-
-    //   const termMatch = formValues.paymentTerms.match(/\d+/);
-    //   const daysToAdd = termMatch ? parseInt(termMatch[0]) : 0;
-
-    //   const paymentDueDate = new Date(createdAtDate);
-    //   paymentDueDate.setDate(createdAtDate.getDate() + daysToAdd);
-
-    //   if (!invoiceData) {
-    //     const completeForm = {
-    //       ...formValues,
-    //       id: Math.random().toString(36).substr(2, 6).toUpperCase(),
-    //       paymentDue: paymentDueDate,
-    //       total: grandTotal.toFixed(2),
-    //       status: submitType === "Draft" ? "Draft" : "Pending",
-    //     };
-    //     setInvoices((prev) => [...prev, completeForm]);
-    //   } else {
-    //     const completeForm = {
-    //       ...formValues,
-    //       paymentDue: paymentDueDate,
-    //       total: grandTotal.toFixed(2),
-    //       status: submitType === "Draft" ? "Draft" : "Pending",
-    //     };
-    //     setSelectedInvoice(completeForm);
-
-    //     setInvoices((prev) =>
-    //       prev.map((inv) => (inv.id == completeForm.id ? completeForm : inv))
-    //     );
-    //   }
-
-    //   onResetForm();
-    // },
     onSubmit: (formValues) => {
-      // Format item prices to 2 decimal places
       const formattedItems = formValues.items.map((item) => ({
         ...item,
         price: parseFloat(item.price).toFixed(2),
@@ -146,7 +106,7 @@ function Form({
         items: formattedItems,
         paymentDue: paymentDueDate,
         total: grandTotal.toFixed(2),
-        status: submitType === "Draft" ? "Draft" : "Pending",
+        status: submitType === "draft" ? "draft" : "pending",
       };
 
       if (!invoiceData) {
@@ -186,10 +146,13 @@ function Form({
     if (!resetValues) return;
     if (date !== null) setDate(null);
     if (selectedTerm !== null) setSelectedTerm(null);
-    setSubmitType("Pending");
+    setSubmitType("pending");
     setItemErrorMsg(null);
     resetForm({ values: initialValues });
+    const updatedItems = [{ name: "", quantity: "", price: "", total: "0.00" }];
+    setFieldValue("items", updatedItems);
     setResetValues(false);
+    console.log("reseted1");
   }, [resetValues]);
 
   const onResetForm = (string) => {
@@ -199,9 +162,14 @@ function Form({
       if (invoiceData) return;
       if (date !== null) setDate(null);
       if (selectedTerm !== null) setSelectedTerm(null);
-      setSubmitType("Pending");
+      setSubmitType("pending");
       setItemErrorMsg(null);
       resetForm({ values: initialValues });
+      const updatedItems = [
+        { name: "", quantity: "", price: "", total: "0.00" },
+      ];
+      setFieldValue("items", updatedItems);
+      console.log("reseted");
     }, 300);
   };
 
@@ -253,7 +221,13 @@ function Form({
         {/* Bill From Section */}
         <div className="form-box">
           <h1>Bill From</h1>
-          <div className="input-box">
+          <div
+            className={
+              touched.senderAddress?.street && errors?.senderAddress?.street
+                ? "input-box input-box-error"
+                : "input-box"
+            }
+          >
             <p className="error">
               {touched?.senderAddress?.street && errors?.senderAddress?.street
                 ? errors.senderAddress.street
@@ -270,7 +244,13 @@ function Form({
           </div>
           <div className="triple-Input-box">
             <div className="duble-Input-box">
-              <div className="input-box">
+              <div
+                className={
+                  touched?.senderAddress?.city && errors?.senderAddress?.city
+                    ? "input-box input-box-error"
+                    : "input-box"
+                }
+              >
                 <p className="error">
                   {touched?.senderAddress?.city && errors?.senderAddress?.city
                     ? errors.senderAddress.city
@@ -285,7 +265,14 @@ function Form({
                   onBlur={handleBlur}
                 />
               </div>
-              <div className="input-box">
+              <div
+                className={
+                  touched?.senderAddress?.postCode &&
+                  errors?.senderAddress?.postCode
+                    ? "input-box input-box-error"
+                    : "input-box"
+                }
+              >
                 <p className="error">
                   {touched?.senderAddress?.postCode &&
                   errors?.senderAddress?.postCode
@@ -302,7 +289,14 @@ function Form({
                 />
               </div>
             </div>
-            <div className="input-box">
+            <div
+              className={
+                touched?.senderAddress?.country &&
+                errors?.senderAddress?.country
+                  ? "input-box input-box-error"
+                  : "input-box"
+              }
+            >
               <p className="error">
                 {touched?.senderAddress?.country &&
                 errors?.senderAddress?.country
@@ -324,7 +318,13 @@ function Form({
         {/* Bill To Section */}
         <div className="form-box">
           <h1>Bill To</h1>
-          <div className="input-box">
+          <div
+            className={
+              touched?.clientName && errors?.clientName
+                ? "input-box input-box-error"
+                : "input-box"
+            }
+          >
             <p className="error">
               {touched?.clientName && errors?.clientName
                 ? errors.clientName
@@ -339,7 +339,13 @@ function Form({
               onBlur={handleBlur}
             />
           </div>
-          <div className="input-box">
+          <div
+            className={
+              touched?.clientEmail && errors?.clientEmail
+                ? "input-box input-box-error"
+                : "input-box"
+            }
+          >
             <p className="error">
               {touched?.clientEmail && errors?.clientEmail
                 ? errors.clientEmail
@@ -354,7 +360,13 @@ function Form({
               onBlur={handleBlur}
             />
           </div>
-          <div className="input-box">
+          <div
+            className={
+              touched?.clientAddress?.street && errors?.clientAddress?.street
+                ? "input-box input-box-error"
+                : "input-box"
+            }
+          >
             <p className="error">
               {touched?.clientAddress?.street && errors?.clientAddress?.street
                 ? errors.clientAddress.street
@@ -371,7 +383,13 @@ function Form({
           </div>
           <div className="triple-Input-box">
             <div className="duble-Input-box">
-              <div className="input-box">
+              <div
+                className={
+                  touched?.clientAddress?.city && errors?.clientAddress?.city
+                    ? "input-box input-box-error"
+                    : "input-box"
+                }
+              >
                 <p className="error">
                   {touched?.clientAddress?.city && errors?.clientAddress?.city
                     ? errors.clientAddress.city
@@ -386,7 +404,14 @@ function Form({
                   onBlur={handleBlur}
                 />
               </div>
-              <div className="input-box">
+              <div
+                className={
+                  touched?.clientAddress?.postCode &&
+                  errors?.clientAddress?.postCode
+                    ? "input-box input-box-error"
+                    : "input-box"
+                }
+              >
                 <p className="error">
                   {touched?.clientAddress?.postCode &&
                   errors?.clientAddress?.postCode
@@ -403,7 +428,14 @@ function Form({
                 />
               </div>
             </div>
-            <div className="input-box">
+            <div
+              className={
+                touched?.clientAddress?.country &&
+                errors?.clientAddress?.country
+                  ? "input-box input-box-error"
+                  : "input-box"
+              }
+            >
               <p className="error">
                 {touched?.clientAddress?.country &&
                 errors?.clientAddress?.country
@@ -421,7 +453,13 @@ function Form({
             </div>
           </div>
           <div className="special-double-input-box">
-            <div className="input-box">
+            <div
+              className={
+                touched?.createdAt && errors?.createdAt
+                  ? "input-box input-box-error"
+                  : "input-box"
+              }
+            >
               <p className="error">
                 {touched?.createdAt && errors?.createdAt
                   ? errors.createdAt
@@ -446,7 +484,13 @@ function Form({
                 showIcon
               />
             </div>
-            <div className="input-box">
+            <div
+              className={
+                touched?.paymentTerms && errors?.paymentTerms
+                  ? "input-box input-box-error"
+                  : "input-box"
+              }
+            >
               <p className="error">
                 {touched?.paymentTerms && errors?.paymentTerms
                   ? errors.paymentTerms
@@ -478,7 +522,13 @@ function Form({
             </div>
           </div>
 
-          <div className="input-box">
+          <div
+            className={
+              touched?.description && errors?.description
+                ? "input-box input-box-error"
+                : "input-box"
+            }
+          >
             <p className="error">
               {touched?.description && errors?.description
                 ? errors.description
@@ -532,7 +582,7 @@ function Form({
           <button
             className="Save-draft"
             type="submit"
-            onClick={() => setSubmitType("Draft")}
+            onMouseDown={() => setSubmitType("draft")}
           >
             Save as Draft
           </button>
@@ -541,7 +591,7 @@ function Form({
         <button
           className="Save-send"
           type="submit"
-          onMouseDown={() => setSubmitType("Pending")}
+          onMouseDown={() => setSubmitType("pending")}
         >
           Save & Send
         </button>

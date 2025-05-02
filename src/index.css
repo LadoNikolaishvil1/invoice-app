@@ -15,7 +15,7 @@
   --input-border: #dfe3fa;
   --add-bg: #f1f4ff;
   --add-txt: #7e88c3;
-  --discard-bg: #7e88c3;
+  --discard-bg: #dfe3fa;
   --discard-txt: #7e88c3;
   --saveDraft: #888eb0;
   --saveDraftHover: #0c0e16;
@@ -37,8 +37,8 @@
   --input-border: #252945;
   --add-bg: #252945;
   --add-txt: #888eb0;
-  --discard-bg: #dfe3fa;
-  --discard-txt: #dfe3fa;
+  --discard-bg: #f9fafe;
+  --discard-txt: #7E88C3;
   --saveDraft: #dfe3fa;
   --saveDraftHover: #1e2139;
   --Grand-bg: #0c0e16;
