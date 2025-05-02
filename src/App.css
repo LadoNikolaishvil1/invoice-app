@@ -734,6 +734,7 @@ footer button {
   flex-direction: column;
   transition: 0.5s ease;
   position: relative;
+  min-height: 156px;
 }
 
 .card-active {
@@ -771,8 +772,13 @@ footer button {
   z-index: 800;
   padding: 24px;
   cursor: pointer;
+  border: 2px solid transparent;
   gap: 9px;
   transition: 0.5s ease;
+}
+
+.portion:hover {
+  border-color: var(--purple-500);
 }
 
 .portion *,
@@ -894,6 +900,10 @@ footer button {
 .paid {
   background: rgba(51, 214, 159, 0.2);
   color: rgba(51, 214, 159, 1);
+}
+
+.card{
+  min-height: 88px;
 }
 
 .card .full {

@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
+import { useLocalStorage } from "@uidotdev/usehooks";
 import "./App.css";
 import Form from "./components/InvoiceForm.jsx";
 import InvoiceCard from "./components/InvoiceCard.jsx";
@@ -21,7 +22,7 @@ function App() {
     paid: false,
   });
   const [resetForm, setResetForm] = useState(false);
-  const [invoices, setInvoices] = useState([]);
+  const [invoices, setInvoices] = useLocalStorage("invoices", []);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [ShowPopUp, SetShowPopUp] = useState(false);
   const [deletingInv, setDeletingInv] = useState(null);
