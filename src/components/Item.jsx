@@ -13,7 +13,13 @@ const Item = ({
 }) => {
   return (
     <div className="item-box">
-      <div className="input-box">
+      <div
+        className={
+          touched.name && errors.name
+            ? "input-box input-box-error"
+            : "input-box"
+        }
+      >
         <p>Item Name</p>
         <input
           type="text"
@@ -27,7 +33,14 @@ const Item = ({
       </div>
 
       <div className="item-tripple-input-box">
-        <div className="input-box" style={{ width: "20%" }}>
+        <div
+          className={
+            touched.quantity && errors.quantity
+              ? "input-box input-box-error"
+              : "input-box"
+          }
+          style={{ width: "20%" }}
+        >
           <p>Qty.</p>
           <input
             type="number"
@@ -40,7 +53,7 @@ const Item = ({
           </p>
         </div>
 
-        <div className="input-box" style={{ width: "40%" }}>
+        <div className={touched.price && errors.price ? "input-box input-box-error" : "input-box"} style={{ width: "40%" }}>
           <p>Price</p>
           <input
             type="number"
